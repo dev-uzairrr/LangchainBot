@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 from app.core.rag_pipeline import rag_pipeline
+from app.core.vectorstore import vector_store
 import logging
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,16 @@ async def query_rag(request: RAGQueryRequest):
     try:
         if not request.query or not request.query.strip():
             raise HTTPException(status_code=400, detail="Query cannot be empty")
+        
+        # Check if documents exist in the vector store
+        stats = vector_store.get_collection_stats()
+        total_chunks = stats.get("total_chunks", 0)
+        
+        if total_chunks == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="No documents found in the knowledge base. Please upload documents first using the Upload tab."
+            )
         
         result = await rag_pipeline.rag_query(
             query=request.query,

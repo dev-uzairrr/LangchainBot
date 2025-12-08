@@ -84,6 +84,10 @@ export const adminAPI = {
     });
     return response.data;
   },
+  stats: async () => {
+    const response = await apiClient.get(`${API_V1_PREFIX}/admin/stats`);
+    return response.data;
+  },
 };
 
 /**

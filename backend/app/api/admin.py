@@ -26,6 +26,13 @@ class EmbedResponse(BaseModel):
     chunks_indexed: int = Field(..., description="Number of chunks indexed")
 
 
+class StatsResponse(BaseModel):
+    """Response model for collection statistics."""
+    total_chunks: int = Field(..., description="Total number of chunks in the collection")
+    has_documents: bool = Field(..., description="Whether documents exist in the collection")
+    collection_name: str = Field(..., description="Collection name")
+
+
 def extract_text_from_pdf(file_content: bytes) -> str:
     """Extract text from PDF file."""
     try:
@@ -138,4 +145,24 @@ async def embed_document(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Error in document embedding endpoint: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
+
+
+@router.get("/stats", response_model=StatsResponse)
+async def get_collection_stats():
+    """
+    Get statistics about the document collection.
+    
+    Returns:
+        Collection statistics including total chunks and whether documents exist
+    """
+    try:
+        stats = vector_store.get_collection_stats()
+        return StatsResponse(
+            total_chunks=stats.get("total_chunks", 0),
+            has_documents=stats.get("total_chunks", 0) > 0,
+            collection_name=stats.get("collection_name", settings.QDRANT_COLLECTION_NAME)
+        )
+    except Exception as e:
+        logger.error(f"Error getting collection stats: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error getting stats: {str(e)}")
 

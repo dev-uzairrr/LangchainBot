@@ -16,15 +16,23 @@ class RAGPipeline:
     
     def __init__(self):
         """Initialize RAG pipeline."""
-        self.system_prompt = """You are a helpful AI assistant that answers questions based on the provided context. 
-        
-Your task is to:
-1. Answer questions accurately using only the information from the context
-2. If the context doesn't contain enough information, say so clearly
-3. Provide clear, concise, and helpful answers
-4. Cite sources when relevant (mention document IDs if available)
+        self.system_prompt = """You are a helpful AI assistant that answers questions based on the provided context from uploaded documents.
 
-Be helpful, accurate, and honest. If you don't know something based on the context, admit it."""
+Your task is to:
+1. Answer questions accurately using ONLY the information from the provided context
+2. If the context doesn't contain enough information to answer the question, clearly state that the information is not available in the documents
+3. Provide clear, concise, and well-structured answers
+4. When possible, cite specific details from the context to support your answer
+5. If asked about something not in the context, politely explain that you can only answer based on the uploaded documents
+
+Important guidelines:
+- Base your answer strictly on the context provided
+- Do not use external knowledge beyond what's in the context
+- If the question is unclear or ambiguous, ask for clarification or provide the most relevant answer based on the context
+- Structure your answer logically and make it easy to understand
+- Be honest when information is not available in the context
+
+Be helpful, accurate, and honest. If you don't know something based on the context, admit it clearly."""
     
     async def rag_query(self, query: str, lang: str = "en") -> Dict:
         """
@@ -39,15 +47,19 @@ Be helpful, accurate, and honest. If you don't know something based on the conte
         """
         try:
             # Step 1: Retrieve relevant documents
+            logger.info(f"Searching for query: {query[:100]}...")
             search_results = vector_store.search(
                 query=query,
                 top_k=settings.RAG_TOP_K,
                 min_score=settings.RAG_MIN_SCORE,
             )
             
+            logger.info(f"Retrieved {len(search_results)} search results")
+            
             if not search_results:
+                logger.warning(f"No search results found for query: {query}")
                 return {
-                    "answer": "I couldn't find relevant information in the knowledge base to answer your question.",
+                    "answer": "I couldn't find relevant information in the uploaded documents to answer your question. Please try rephrasing your question or ensure the relevant documents have been uploaded.",
                     "sources": [],
                     "confidence": 0.0,
                 }
@@ -65,12 +77,19 @@ Be helpful, accurate, and honest. If you don't know something based on the conte
             context = "\n\n".join(context_parts)
             
             # Step 3: Build prompt with context
-            prompt = f"""Context:
+            prompt = f"""Based on the following context from uploaded documents, please answer the question.
+
+Context from documents:
 {context}
 
 Question: {query}
 
-Answer the question based on the context provided above. If the context doesn't contain enough information to answer, say so."""
+Instructions:
+- Answer the question using ONLY the information from the context above
+- If the context contains relevant information, provide a clear and detailed answer
+- If the context doesn't contain enough information to answer the question, clearly state: "I couldn't find enough information in the uploaded documents to answer this question."
+- Be specific and cite relevant details from the context when possible
+- Structure your answer in a clear and easy-to-understand format"""
             
             # Step 4: Generate answer using LLM
             try:

@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     
     # RAG Settings
     RAG_TOP_K: int = 4
-    RAG_MIN_SCORE: float = 0.3
+    RAG_MIN_SCORE: float = 0.2  # Lower threshold to get more relevant results
     
     # ML Model Settings
     SENTIMENT_MODEL_PATH: str = "./app/models/sentiment_model.pkl"

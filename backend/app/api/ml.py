@@ -70,6 +70,8 @@ class SentimentModel:
             return self._fallback_sentiment(text)
         
         try:
+            import numpy as np
+            
             # Preprocess text
             processed_text = preprocess_for_sentiment(text)
             
@@ -80,39 +82,45 @@ class SentimentModel:
                 # If no vectorizer, use simple features
                 text_vector = [[len(processed_text), processed_text.count('!')]]
             
-            # Predict
-            prediction_array = self.model.predict(text_vector)
+            # Get probabilities for all classes
             probabilities = self.model.predict_proba(text_vector)[0]
             
-            # Extract prediction value - handle numpy array properly
-            import numpy as np
-            if isinstance(prediction_array, np.ndarray):
-                prediction_idx = int(prediction_array[0]) if prediction_array.size > 0 else 0
-            elif hasattr(prediction_array, '__len__') and len(prediction_array) > 0:
-                prediction_idx = int(prediction_array[0])
-            else:
-                prediction_idx = int(prediction_array)
+            # Get the index of the class with highest probability
+            max_prob_idx = int(np.argmax(probabilities))
             
-            # Get label using probabilities (more reliable)
-            if hasattr(self.model, 'classes_'):
-                # Use argmax on probabilities to get the most likely class
-                max_prob_idx = int(np.argmax(probabilities))
+            # Get the label from model classes
+            if hasattr(self.model, 'classes_') and len(self.model.classes_) > 0:
                 if 0 <= max_prob_idx < len(self.model.classes_):
                     label = self.model.classes_[max_prob_idx]
                 else:
-                    # Fallback to prediction index
-                    if 0 <= prediction_idx < len(self.model.classes_):
-                        label = self.model.classes_[prediction_idx]
+                    # Fallback: use direct prediction
+                    prediction = self.model.predict(text_vector)
+                    if isinstance(prediction, np.ndarray) and prediction.size > 0:
+                        label = str(prediction[0])
                     else:
-                        label = "neutral"
+                        label = str(prediction) if not isinstance(prediction, np.ndarray) else "neutral"
             else:
-                label = "positive" if prediction_idx == 1 else "negative"
+                # Fallback: use direct prediction
+                prediction = self.model.predict(text_vector)
+                if isinstance(prediction, np.ndarray) and prediction.size > 0:
+                    label = str(prediction[0])
+                else:
+                    label = str(prediction) if not isinstance(prediction, np.ndarray) else "neutral"
             
             # Get score (max probability)
             score = float(np.max(probabilities))
             
+            # Normalize label to lowercase
+            label = str(label).lower().strip()
+            
+            # Validate label
+            valid_labels = ['positive', 'negative', 'neutral']
+            if label not in valid_labels:
+                logger.warning(f"Invalid label '{label}' predicted, using fallback")
+                return self._fallback_sentiment(text)
+            
             return {
-                "label": str(label).lower(),
+                "label": label,
                 "score": round(score, 2)
             }
             
@@ -123,16 +131,40 @@ class SentimentModel:
     def _fallback_sentiment(self, text: str) -> dict:
         """Fallback sentiment analysis using simple rules."""
         text_lower = text.lower()
-        positive_words = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'love', 'best', 'awesome', 'fantastic']
-        negative_words = ['bad', 'terrible', 'awful', 'hate', 'worst', 'horrible', 'disappointing']
         
+        # Expanded word lists
+        positive_words = [
+            'good', 'great', 'excellent', 'amazing', 'wonderful', 'love', 'best', 'awesome', 
+            'fantastic', 'brilliant', 'outstanding', 'perfect', 'superb', 'marvelous', 'delightful',
+            'zabardast', 'acha', 'bohot acha', 'maza aya', 'impressed', 'satisfied', 'happy',
+            'pleased', 'enjoyed', 'recommend', 'exceeded', 'loved', 'adore', 'fantastic'
+        ]
+        negative_words = [
+            'bad', 'terrible', 'awful', 'hate', 'worst', 'horrible', 'disappointing', 'poor',
+            'waste', 'disgusting', 'annoying', 'frustrated', 'angry', 'upset', 'disappointed',
+            'bekar', 'pasand nahi', 'kharab', 'ganda', 'bura', 'worst', 'hated', 'avoid',
+            'never', 'regret', 'disgusted', 'furious', 'miserable'
+        ]
+        
+        # Count positive and negative words
         pos_count = sum(1 for word in positive_words if word in text_lower)
         neg_count = sum(1 for word in negative_words if word in text_lower)
         
+        # Check for exclamation marks and intensity
+        exclamation_count = text.count('!')
+        if exclamation_count > 0:
+            if pos_count > 0:
+                pos_count += 1
+            elif neg_count > 0:
+                neg_count += 1
+        
+        # Determine sentiment
         if pos_count > neg_count:
-            return {"label": "positive", "score": 0.7}
+            confidence = min(0.7 + (pos_count - neg_count) * 0.1, 0.95)
+            return {"label": "positive", "score": round(confidence, 2)}
         elif neg_count > pos_count:
-            return {"label": "negative", "score": 0.7}
+            confidence = min(0.7 + (neg_count - pos_count) * 0.1, 0.95)
+            return {"label": "negative", "score": round(confidence, 2)}
         else:
             return {"label": "neutral", "score": 0.5}
 
