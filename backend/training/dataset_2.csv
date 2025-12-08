@@ -1,0 +1,126 @@
+text,label
+
+"Yeh movie bohot zabardast thi!","positive"
+
+"Mujhe bohot maza aya is event mein.","positive"
+
+"Food was excellent, specially the biryani.","positive"
+
+"Service bohot achi thi yaar.","positive"
+
+"Great job bro, I'm impressed.","positive"
+
+"Zindagi mein pehli baar itna acha experience mila.","positive"
+
+"Absolutely loved the environment.","positive"
+
+"Staff was very polite and friendly.","positive"
+
+"Bohot hi pyari jagah hai visit ke liye.","positive"
+
+"Highly recommended, 10/10.","positive"
+
+"Maza hi aa gaya, super fun!","positive"
+
+"सब कुछ बढ़िया था।","positive"
+
+"बिलकुल परफेक्ट।","positive"
+
+"बहुत अच्छा अनुभव रहा।","positive"
+
+"ਮੈਨੂੰ ਬਹੁਤ ਮਜ਼ਾ ਆਇਆ।","positive"
+
+"ਇਹ ਬਹੁਤ ਵਧੀਆ ਸੀ।","positive"
+
+"The product exceeded my expectations.","positive"
+
+"Really happy with the results.","positive"
+
+"This is fantastic work.","positive"
+
+"I'm extremely satisfied.","positive"
+
+
+
+"Yeh experience bilkul bekar tha.","negative"
+
+"Mujhe bilkul pasand nahi aya.","negative"
+
+"Service bohot slow thi.","negative"
+
+"Khane ka taste acha nahi tha.","negative"
+
+"Totally waste of money.","negative"
+
+"Terrible behavior by staff.","negative"
+
+"Iss jagah dobara nahi aaunga.","negative"
+
+"Bohot gandi service thi bro.","negative"
+
+"Experience ne mera mood kharab kar diya.","negative"
+
+"Iss se bura kuch nahi ho sakta.","negative"
+
+"Dil bilkul kharab ho gaya.","negative"
+
+"बहुत खराब था।","negative"
+
+"गंदा अनुभव रहा।","negative"
+
+"ਪੂਰੀ ਤਰ੍ਹਾਂ ਨਿਰਾਸ਼।","negative"
+
+"बहुत बुरा लगा।","negative"
+
+"This was extremely disappointing.","negative"
+
+"Not worth it at all.","negative"
+
+"I hated every minute.","negative"
+
+"Worst experience ever.","negative"
+
+"Never buying again.","negative"
+
+
+
+"It was okay, nothing special.","neutral"
+
+"Mera reaction theek tha, na bohot acha na bura.","neutral"
+
+"Food theek hi tha, average.","neutral"
+
+"Experience was fine.","neutral"
+
+"Can't say much, normal hi tha.","neutral"
+
+"Thik thak service thi.","neutral"
+
+"Bas theek tha, no complaints.","neutral"
+
+"Not bad, not good.","neutral"
+
+"I have mixed feelings.","neutral"
+
+"Kuch khas nahi, but thik tha.","neutral"
+
+"ठीक था, संभलनीय।","neutral"
+
+"ना अच्छा ना बुरा।","neutral"
+
+"ਇਹ ਸਿਰਫ ਠੀਕ ਸੀ।","neutral"
+
+"ਸਾਧਾਰਣ ਅਨੁਭਵ।","neutral"
+
+"It was neither great nor terrible.","neutral"
+
+"Just an average experience.","neutral"
+
+"I don't have strong feelings.","neutral"
+
+"Nothing much to say.","neutral"
+
+"It felt normal.","neutral"
+
+"Neutral impression overall.","neutral"
+
